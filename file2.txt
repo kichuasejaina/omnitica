@@ -1,1 +1,1 @@
-This is file 2... Changed inside mygit
+This is file 2... Changed inside mygit. GUI
