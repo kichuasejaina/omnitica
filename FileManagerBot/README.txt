@@ -14,9 +14,9 @@ Firstname="First Name"
 Lastname="Last Name"
 
 
-Getting API Token and Firstname and Lastname:
+Getting API Token,Firstname and Lastname:
 
-1) Install telegram in mobile device from marjet store.
+1) Install telegram in mobile device from market store.
 2) Register and Set Firstname Lastname and Mail id. Which is required.
 3) Search @BotFather and start chat.
 4) send /newbot and follow the steps.
