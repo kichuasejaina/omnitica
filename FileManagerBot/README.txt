@@ -1,5 +1,6 @@
 This is a sample bot which will let you access your files in computer on the go.
-Anyfile can be uploaded to and downloaded from your computer.
+Anyfile can be uploaded to and downloaded from your computerjust through a chat. Any Time, Any Where.
+
 
 INSTALL AND CONFIGURE:
 
@@ -26,7 +27,7 @@ Getting API Token,Firstname and Lastname:
 
 
 
-Finally, Run start_tel.bat
+Finally, copy telegram.py and start_tel.bat to a folder where you want to start. Run start_tel.bat
 
 On device...
 
