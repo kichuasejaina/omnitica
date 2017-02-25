@@ -36,6 +36,7 @@ clean_<directory> --> Full Delete the directory
 /size_<filename> --> Get size
     '''
     bot.reply_to(msg,msgg)
+    bot.reply_to(msg,"Easy Tools:\n /show_dirs,/show_files,/show_detail,/back,/cwd")
 
 @bot.message_handler(commands='cwd')
 @user_permit
@@ -94,7 +95,7 @@ def listing(msg):
                     rep +='F) '+ str(f) + '--> /get_' + str(f) + " \n"
                 else :
                     rep +='U) '+ str(f) + '--> Not a file or directory' + " \n"
-           # print rep.decode(errors='ignore')        
+           # print rep.decode(errors='ignore')
             bot.reply_to(msg,rep.decode(errors='ignore'))
         elif type == 'dir' :
             rep='Listing Directories:\n'
@@ -273,6 +274,39 @@ def get_detail(msg):
         bot.reply_to(msg,"Oops !! Something wrong "+str(err))
     except :
         bot.reply_to(msg, "Oops !! Something wrong ..")
+
+@bot.message_handler(commands='show_dirs')
+@user_permit
+def goto_keyboard(msg):
+    mrk=telebot.types.ReplyKeyboardMarkup()
+    mrk.add('/back','/list_dir','/list_all','/show_files')
+    listt=os.listdir('.')
+    for i in listt :
+        if os.path.isdir(i) :
+            mrk.add('/goto_'+str(i).decode(errors='ignore'))
+    bot.reply_to(msg,'Choose Where to go?',reply_markup=mrk)
+
+@bot.message_handler(commands='show_files')
+@user_permit
+def get_keyboard(msg):
+    mrkk=telebot.types.ReplyKeyboardMarkup()
+    listt=os.listdir('.')
+    mrkk.add('/back','/list_files','/list_all','/show_dirs')
+    for i in listt :
+        if os.path.isfile(i) :
+            mrkk.add('/get_'+str(i).decode(errors='ignore'))
+    bot.reply_to(msg,'Choose What to get?',reply_markup=mrkk)
+
+@bot.message_handler(commands='show_detail')
+@user_permit
+def size_keyboard(msg):
+    mrkk=telebot.types.ReplyKeyboardMarkup()
+    mrkk.add('/back','/list_dir','/list_all','/show_files','/show_dirs')
+    listt=os.listdir('.')
+    for i in listt :
+        if os.path.isfile(i) :
+            mrkk.add('/size_'+str(i).decode(errors='ignore'))
+    bot.reply_to(msg,'Choose file to get size?',reply_markup=mrkk)
 
 
 
