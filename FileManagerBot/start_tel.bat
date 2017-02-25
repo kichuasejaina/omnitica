@@ -1,6 +1,6 @@
 @echo off
 : top
-start telegram.py
+start /min telegram.py
 : check
 TIMEOUT 5
 tasklist  | find "python"
