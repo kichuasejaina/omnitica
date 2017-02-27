@@ -3,7 +3,10 @@ import telebot,os
 API_TOKEN="api-token"
 Firstname="First Name"
 Lastname="Last Name"
+
 bot = telebot.TeleBot(API_TOKEN)
+
+
 
 def user_permit(func):
     def outburst(msg):
@@ -31,7 +34,7 @@ def welcome(msg):
 /rename <old>#<new> --> Remane a file and folder
 /rm_dir_<dir> --> Remove a directory if it is empty
 /rm_file_<filename> --> Remove a file
-clean_<directory> --> Full Delete the directory
+/clean_<directory> --> Full Delete the directory
 /get_<filename> --> Get a file from computer
 /size_<filename> --> Get size
     '''
@@ -57,26 +60,36 @@ def backk(msg):
 @user_permit
 def gett(msg):
     filee=str(msg.text[5:]).strip(' ')
-    if os.path.exists(filee) and os.path.isfile(filee) :
-        if int(os.path.getsize(filee)) <= 10*1024*1024 :
-            f=open(filee,'rb')
-            bot.send_document(msg.chat.id,f,msg.message_id)
-            f.close()
+    try :
+        if os.path.exists(filee) and os.path.isfile(filee) :
+            if int(os.path.getsize(filee)) <= 10*1024*1024 :
+                f=open(filee,'rb')
+                bot.send_document(msg.chat.id,f,msg.message_id)
+                f.close()
+            else :
+                bot.reply_to(msg, "File size is too big: {} Size: {} bytes".format(filee,str(int(os.path.getsize(filee)))))
         else :
-            bot.reply_to(msg, "File size is too big: {} Size: {} bytes".format(filee,str(int(os.path.getsize(filee)))))
-    else :
-        bot.reply_to(msg, "Either does not exist or a folder " + filee)
+            bot.reply_to(msg, "Either does not exist or a folder " + filee)
+    except os.error as err :
+        bot.reply_to(msg,'OOps Something worng: '+str(err))
+    except :
+        bot.reply_to(msg, 'OOps Something worng:')
 
 @bot.message_handler(regexp='goto_*')
 @user_permit
 def goto(msg):
-    dirr=str(msg.text[6:]).strip(' ')
-    if os.path.exists(dirr) and os.path.isdir(dirr):
-        os.chdir(dirr)
-        curdir = os.path.abspath(os.curdir)
-        bot.reply_to(msg, curdir)
-    else :
-        bot.reply_to(msg, "Either does not exist or a file " + dirr)
+    try:
+        dirr=str(msg.text[6:]).strip(' ')
+        if os.path.exists(dirr) and os.path.isdir(dirr):
+            os.chdir(dirr)
+            curdir = os.path.abspath(os.curdir)
+            bot.reply_to(msg, curdir)
+        else :
+            bot.reply_to(msg, "Either does not exist or a file " + dirr)
+    except os.error as err:
+        bot.reply_to(msg, 'OOps Something worng: ' + str(err))
+    except :
+        bot.reply_to(msg, 'OOps Something worng:')
 
 
 @bot.message_handler(regexp='list_*')
@@ -225,29 +238,42 @@ def clean(msg):
         bot.reply_to(msg, 'Something Wrong Check the command')
 
 
-import urllib2
-@bot.message_handler(content_types=['document','audio','video','voice'])
+import urllib2,time
+@bot.message_handler(content_types=['document','audio','video','voice','photo'])
 @user_permit
 def putt(msg):
     try:
         typee=msg.content_type
-        global doc
+        global file_id
+        global namee
         if typee == 'document':
-            doc=msg.document
+            file_id=msg.document.file_id
+            namee=msg.document.file_name
         elif typee== 'audio' :
-            doc=msg.audio
+            file_id=msg.audio.file_id
+            namee=msg.audio.title
         elif typee== 'video' :
-            doc=msg.video
+            file_id=msg.video.file_id
+            namee='Video_Record_{0:0>2}{1:0>2}{2:0>2}{3:0>2}{4:0>2}{5:0>2}'.format(str(time.gmtime().tm_year),str(time.gmtime().tm_mon),str(time.gmtime().tm_mday),str(time.gmtime().tm_hour),str(time.gmtime().tm_min),str(time.gmtime().tm_sec))
         elif typee== 'voice' :
-            doc=msg.voice
-        elif typee== 'contact' :
-            doc=msg.contact
+            file_id=msg.voice.file_id
+            namee='Voice_Record_{0:0>2}{1:0>2}{2:0>2}{3:0>2}{4:0>2}{5:0>2}'.format(str(time.gmtime().tm_year),str(time.gmtime().tm_mon),str(time.gmtime().tm_mday),str(time.gmtime().tm_hour),str(time.gmtime().tm_min),str(time.gmtime().tm_sec))
+        elif typee== 'photo' :
+            file_id=msg.photo[len(msg.photo)-1].file_id
+            namee=None
         else :
-            doc=msg.decument
+            file_id=msg.decument.file_id
 
-        file_info=bot.get_file(doc.file_id)
+        file_info=bot.get_file(file_id)
         fileee=urllib2.urlopen('https://api.telegram.org/file/bot{0}/{1}'.format(API_TOKEN, file_info.file_path))
-        namee=file_info.file_path.split('/')[-1]
+        if namee==None :
+            namee=file_info.file_path.split('/')[-1]
+        elif typee != 'document' :
+            extt=file_info.file_path.split('/')[-1].split('.')[-1]
+            namee += '.'+extt
+        else :
+            pass
+
         if not os.path.exists(namee):
             g=open(namee,'wb')
             data = fileee.read()
@@ -261,6 +287,9 @@ def putt(msg):
         bot.reply_to(msg, 'Something Wrong ' + str(err))
     except :
         bot.reply_to(msg, 'Something Wrong try to send again')
+
+
+
 
 
 @bot.message_handler(regexp='size_*')
@@ -279,7 +308,7 @@ def get_detail(msg):
 @user_permit
 def goto_keyboard(msg):
     mrk=telebot.types.ReplyKeyboardMarkup()
-    mrk.add('/back','/list_dir','/list_all','/show_files')
+    mrk.add('/back')
     listt=os.listdir('.')
     for i in listt :
         if os.path.isdir(i) :
@@ -291,7 +320,7 @@ def goto_keyboard(msg):
 def get_keyboard(msg):
     mrkk=telebot.types.ReplyKeyboardMarkup()
     listt=os.listdir('.')
-    mrkk.add('/back','/list_files','/list_all','/show_dirs')
+    mrkk.add('/back')
     for i in listt :
         if os.path.isfile(i) :
             mrkk.add('/get_'+str(i).decode(errors='ignore'))
@@ -301,7 +330,7 @@ def get_keyboard(msg):
 @user_permit
 def size_keyboard(msg):
     mrkk=telebot.types.ReplyKeyboardMarkup()
-    mrkk.add('/back','/list_dir','/list_all','/show_files','/show_dirs')
+    mrkk.add('/back')
     listt=os.listdir('.')
     for i in listt :
         if os.path.isfile(i) :
