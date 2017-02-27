@@ -1,12 +1,16 @@
 import telebot,os
 
-API_TOKEN="api-token"
+API_TOKEN="API Token"
 Firstname="First Name"
 Lastname="Last Name"
 
+
 bot = telebot.TeleBot(API_TOKEN)
 
-
+pid=os.getpid()
+g=open(__file__+'.pid','w')
+g.write(str(pid))
+g.close()
 
 def user_permit(func):
     def outburst(msg):

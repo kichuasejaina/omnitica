@@ -3,5 +3,8 @@
 start /min telegram.py
 : check
 TIMEOUT 5
-tasklist  | find "python"
+for /F "tokens=1" %%a in (telegram.py.pid) do (
+set pidd=%%a
+)
+tasklist | find "%pidd%"
 if %errorlevel% == 1 (goto :top) else (goto :check)
