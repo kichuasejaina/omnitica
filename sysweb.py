@@ -1,5 +1,5 @@
 import time,psutil
-from flask import Flask,redirect,send_file
+from flask import Flask,redirect,send_file,request
 
 
 HOST='localhost'
@@ -15,7 +15,7 @@ def sec2time(timee):
 @app.route('/')
 @app.route('/help/')
 def help():
-    a=['/help/','/sys/','/network/','/proc/','/recent_proc/','/time/','/add/2.0/3.0/','/top_mem/','/top_cpu/','/path/']
+    a=['/help/','/sys/','/network/','/proc/','/recent_proc/','/time/','/add/2.0/3.0/','/top_mem/','/top_cpu/','/path/','/command/']
     b=''
     for i in a :
         b+='<a href="{0}">{0}</a><br>'.format(str(i))
@@ -238,6 +238,52 @@ def pathh(lis):
         except :
             a+="<b>Not available {}</b>".format(str(way))
     return (a)
+
+import subprocess
+
+@app.route('/command/',methods =['GET','POST'])
+def command():
+    a=''
+    a+="<b> Welcome to command Run <b> <br>"
+    a+="""
+    <form action="/command/" method="post">
+  Command: <input type="text" name="cmd"><br>
+<input type="submit" name="run" value="Run Normally">
+<input type="submit" name="run" value="Run With Shell">
+</form></br>
+    """
+    cmd,res,err=['','','']
+    if request.method== 'POST' :
+        CMD=str(request.form['cmd'])
+        cmd=CMD.split(' ')
+        try :
+            if request.form['run'] == 'Run With Shell' :
+                p=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+                res, err = p.stdout.read(), p.stderr.read()
+            else :
+                p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+                res,err=p.stdout.read(),p.stderr.read()
+            cmd=CMD
+        except :
+            res='Couldn\'t Run'
+            err="Couldn\'t Run"
+            cmd=CMD
+    else :
+        CMD = str('echo Hello')
+        cmd = CMD.split(' ')
+        try:
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            res,err=p.stdout.read(),p.stderr.read()
+            cmd=CMD
+        except:
+            res = 'Couldn\'t Run'
+            err = "Couldn\'t Run"
+            cmd = CMD
+    a+="<b>Running command {}: </b><br><b>OutPut and Error is:</b><br><plaintext>{} \n {}".format(str(cmd),str(res),str(err))
+    return (a)
+
+
+
 
 
 @app.errorhandler(404)
