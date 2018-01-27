@@ -15,19 +15,12 @@ def sec2time(timee):
 @app.route('/')
 @app.route('/help/')
 def help():
-    a=['/help/','/sys/','/network/','/proc/','/recent_proc/','/time/','/add/2.0/3.0/','/top_mem/','/top_cpu/','/path/','/command/']
+    a=['/help/','/sys/','/network/','/proc/','/recent_proc/','/top_mem/','/top_cpu/','/path/','/command/']
     b=''
     for i in a :
         b+='<a href="{0}">{0}</a><br>'.format(str(i))
     return (b)
 
-@app.route('/time/',)
-def timee():
-    return (time.ctime())
-
-@app.route('/add/<float:a>/<float:b>/')
-def add(a,b):
-    return (str(a+b))
 
 @app.route('/proc/')
 def processes():
@@ -283,7 +276,9 @@ def command():
     return (a)
 
 
-
+@app.route('/favicon.ico')
+def icon():
+    return send_file('logo.jpg')
 
 
 @app.errorhandler(404)
