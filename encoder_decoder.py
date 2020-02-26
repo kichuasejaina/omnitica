@@ -10,7 +10,7 @@ def encoder():
         print("Need to provide string to encode. Exiting!!!!!!")
     else:
         user_input2 = input("Please confirm the string to encode: ")
-        if (user_input1 != user_input2):
+        if (user_input1.strip('\n').strip('\r') != user_input2.strip('\n').strip('\r')):
             print("String mismatch... Exiting!!")
         else:
             user_input = user_input1.strip('\n').strip('\r')
@@ -24,7 +24,7 @@ def decoder(encoded_string):
     key = data[:keylength].encode()
     encrypted_data = data[keylength:].encode()
     decrypter = Fernet(key)
-    decrypted_data = decrypter.decrypt(encrypted_data).decode()
+    decrypted_data = decrypter.decrypt(encrypted_data).decode().strip('\n').strip('\r')
     return decrypted_data
 
 ##
