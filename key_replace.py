@@ -65,8 +65,8 @@ def replace_file(file_location, key_map_data):
         fd.write(msg)
         fd.close()
         print("***** Successfully updated {} *****".format(file_location))
-    except:
-        print("!!!!! Failed to update {} !!!!!".format(file_location))
+    except Exception as ex:
+        print("!!!!! Failed to update {}.{} !!!!!".format(file_location,ex.args))
 
 def recursive_update(destination,key_map_data):
     try:
