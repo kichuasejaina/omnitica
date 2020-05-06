@@ -51,6 +51,7 @@ def get_dictionary_from_keys_file(key_map_file):
         return key_map_data
     except Exception as ex:
         print("!!!!! Failed to check key_map file. {} !!!!!".format(ex.args))
+        exit(1)
 
 
 def replace_file(file_location, key_map_data):
